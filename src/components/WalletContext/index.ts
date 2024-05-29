@@ -1,5 +1,4 @@
 // Import the necessary components
-import Onboard, { OnboardAPI } from "@web3-onboard/core";
 import { ConnectModalOptions } from "@web3-onboard/core/dist/types";
 import injectedModule from "@web3-onboard/injected-wallets";
 import luksoModule from "@lukso/web3-onboard-config";
@@ -73,7 +72,7 @@ export const supportedChains = [
  * Web3-Onboard connection window
  */
 export const appInfo = {
-  name: "My LUKSO App",
+  name: "Forever Memories Dapp",
   /**
    * Pictures can either be a valid
    * Image URL or SVG as string
@@ -82,13 +81,13 @@ export const appInfo = {
    * on the right side, while the connection
    * is being established
    */
-  icon: "/my_app_icon.svg",
+  icon: "favicon.ico",
   /**
    * The logo shows left of the wallet list,
    * indicating the used app
    */
-  logo: "<svg> ... </svg>",
-  description: "My LUKSO App using Web3-Onboard",
+  logo: "favicon.ico",
+  description: "Forever Memories Dapp using Web3-Onboard",
   recommendedInjectedWallets: [
     /**
      * Add other injected wallets and their download links
