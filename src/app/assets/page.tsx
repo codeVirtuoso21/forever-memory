@@ -7,7 +7,7 @@ import ForeverMemoryCollection from "@/smartcontracts/artifacts/ForeverMemoryCol
 const LSP8ContractAddress = "0x6f2C8CF01E143888Ec242886879657F56F3641E9";
 const universalProfileAddress = "0x427F1BC7e005dBe3aE3AC07c3FaD05BC50832BCb";
 
-const Home = () => {
+const Assets = () => {
   const [nftList, setNftList] = useState<string[]>([]);
 
   // useEffect(() => {
@@ -69,4 +69,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Assets;

@@ -1,7 +1,6 @@
 /**
  * Metadata of the application
  */
-
 export const config = {
   metadata: {
     title: "Forever Memories",
