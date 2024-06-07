@@ -3,7 +3,6 @@
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
-import { ethers } from "ethers";
 import { useConnectWallet } from "@web3-onboard/react";
 
 import "./index.css";
@@ -35,6 +34,11 @@ const Navbar = () => {
     },
     {
       id: 5,
+      title: "Assets",
+      link: "assets",
+    },
+    {
+      id: 6,
       title: "Add memory",
       link: "addMemory",
     },
