@@ -12,35 +12,6 @@ const Navbar = () => {
   const [nav, setNav] = useState(false);
   const [{ wallet, connecting }, connect, disconnect] = useConnectWallet();
 
-  useEffect(() => {
-    const storedConnectedLabel = localStorage.getItem("connectedLabel");
-    if (storedConnectedLabel) {
-      connect({
-        autoSelect: { label: storedConnectedLabel, disableModals: true },
-      });
-    }
-  }, []);
-
-  const handleConnect = async () => {
-    const wallets = await connect();
-    if (wallets.length > 0) {
-      const connectedWallet = wallets[0];
-      localStorage.setItem("connectedLabel", connectedWallet.label);
-      localStorage.setItem(
-        "connectedAddress",
-        connectedWallet.accounts[0].address
-      );
-    }
-  };
-
-  const handleDisconnect = async () => {
-    if (wallet) {
-      disconnect(wallet);
-    }
-    localStorage.removeItem("connectedLabel");
-    localStorage.removeItem("connectedAddress");
-  };
-
   const links = [
     {
       id: 1,
@@ -113,7 +84,7 @@ const Navbar = () => {
       <button
         className="walletStyle"
         disabled={connecting}
-        onClick={() => (wallet ? handleDisconnect() : handleConnect())}
+        onClick={() => (wallet ? disconnect(wallet) : connect())}
       >
         {connecting ? "Connecting" : wallet ? "Disconnect" : "Connect"}
       </button>
