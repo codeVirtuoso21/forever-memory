@@ -84,7 +84,7 @@ export default function Page({ params }: { params: { slug: string } }) {
 
       <div className="rounded bg-white mt-10 p-3 rounded shadow-lg shadow-gray-500/50">
         <div className="text-3xl font-bold">
-          Headline description "Day 1 Selfie"
+          Headline description Day 1 Selfie
         </div>
         <div className="">
           My first selfie on the blockchain, time to log my journey for
