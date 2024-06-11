@@ -49,27 +49,22 @@ const Navbar = () => {
     {
       id: 2,
       title: "Memory vaults",
-      link: "memoryVaults",
+      link: "/memoryVaults",
     },
     {
       id: 3,
       title: "Feed",
-      link: "feed",
+      link: "/feed",
     },
     {
       id: 4,
       title: "Marketplace",
-      link: "marketplace",
+      link: "/marketplace",
     },
     {
       id: 5,
-      title: "Assets",
-      link: "assets",
-    },
-    {
-      id: 6,
       title: "Add memory",
-      link: "addMemory",
+      link: "/addMemory",
     },
   ];
 
