@@ -1,9 +1,13 @@
-// components/Carousel.tsx
 "use client";
 
-import { useState } from "react";
+import React, { useCallback, useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { FaAngleLeft, FaAngleRight, FaRegCircleCheck } from "react-icons/fa6";
+import ForeverMemoryCollection from "@/smartcontracts/artifacts/ForeverMemoryCollection.json";
+import { ethers } from "ethers";
+import { useConnectWallet } from "@web3-onboard/react";
+const ForeverMemoryCollectionContractAddress =
+  "0x1684951ebee94fd7ae890456c8b5374ae6ca8833"; // Dear Diary Contract Address on Testnet
 
 const data = [
   {
@@ -34,15 +38,38 @@ const data = [
 
 const VaultSlider = () => {
   const [currentIdx, setCurrentIdx] = useState(0);
+  const [{ wallet, connecting }] = useConnectWallet();
+
+  useEffect(() => {
+    fetchData();
+  }, [wallet]);
+
+  const fetchData = async () => {
+    if (wallet) {
+      const ethersProvider = new ethers.providers.Web3Provider(
+        wallet.provider,
+        "any"
+      );
+      const owner = wallet.accounts[0].address;
+      const provider = wallet.provider;
+      const signer = ethersProvider.getSigner(owner);
+      console.log("owner", owner);
+
+      const ForeverMemoryContract = new ethers.Contract(
+        ForeverMemoryCollectionContractAddress,
+        ForeverMemoryCollection.abi,
+        signer
+      );
+
+      const result = await ForeverMemoryContract.tokenIdsOf(ForeverMemoryCollectionContractAddress);
+      console.log("result", result);
+    }
+  };
 
   const changeItem = (step: number) => {
     let newIdx = (currentIdx + step) % data.length;
     if (newIdx < 0) newIdx = data.length - 1;
     setCurrentIdx(newIdx);
-  };
-
-  const handleGoToVault = () => {
-    console.log("handle go to vault");
   };
 
   return (
@@ -159,7 +186,8 @@ const VaultSlider = () => {
                 <button className="bg-sky-700 p-1 text-sm rounded text-white shadow-lg shadow-gray-500/50">
                   Deploy vault
                 </button>
-                <Link href={`/vault/` + '0xsadfasdfasdfwefwef'}
+                <Link
+                  href={`/vault/` + "0x1684951ebee94fd7ae890456c8b5374ae6ca8833"}
                   // onClick={handleGoToVault}
                   className="border-2 border-sky-700 p-1 text-sm rounded text-sky-700 shadow-lg shadow-gray-500/50 cursor-pointer"
                 >

@@ -9,7 +9,10 @@ import {LSP8CollectionMinter} from "./LSP8CollectionMinter.sol";
 
 contract ForeverMemoryCollection is LSP8IdentifiableDigitalAsset {
     uint256 public rewardAmount;
+    uint256 public totalMintCount; // Variable to store total mint count
     mapping(address => uint256) public lastClaimed;
+    address[] public mintedAddresses; // Array to store minted addresses
+    mapping(address => uint256) public mintingDates; // Mapping to store minting dates
 
     constructor(
         string memory name_,
@@ -52,6 +55,9 @@ contract ForeverMemoryCollection is LSP8IdentifiableDigitalAsset {
             lsp4MetadataURIOfLSP7_
         );
 
+        // Increment total mint count
+        totalMintCount++;
+
         // Convert the address of the LSP7SubCollection to bytes32 to use it as tokenId
         bytes32 tokenId = bytes32(uint256(uint160(lsp7SubCollectionAddress)));
 
@@ -60,6 +66,12 @@ contract ForeverMemoryCollection is LSP8IdentifiableDigitalAsset {
 
         // Record the last claimed time for the minter
         lastClaimed[receiverOfInitialTokens_] = block.timestamp;
+
+        // Store the minted address
+        mintedAddresses.push(lsp7SubCollectionAddress);
+
+        // Store the minting date
+        mintingDates[lsp7SubCollectionAddress] = block.timestamp;
     }
 
     function mintState() internal view returns (bool) {
@@ -71,6 +83,11 @@ contract ForeverMemoryCollection is LSP8IdentifiableDigitalAsset {
 
     function setRewardAmount(uint256 _rewardAmount) external onlyOwner {
         rewardAmount = _rewardAmount;
+    }
+
+    // Function to get the minting date of a specific LSP7 collection
+    function getMintingDate(address lsp7CollectionAddress) public view returns (uint256) {
+        return mintingDates[lsp7CollectionAddress];
     }
 
     // Override the _setDataForTokenId function to set the data on the LSP7SubCollection itself
