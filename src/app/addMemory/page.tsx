@@ -12,22 +12,16 @@ import { useConnectWallet } from "@web3-onboard/react";
 import { FMTContract } from "@/components/MasterWalletProvider";
 import "./index.css";
 const ForeverMemoryCollectionContractAddress =
-  "0xfce4290Dd973eF4d68CA95E600334D66a8Fe849C"; // Daily Selfie Contract Address on Mainnet
+  "0x7126910a279dcd50c7488f714d9b53c125382855"; // Daily Selfie Contract Address on Mainnet
 interface TagOption {
   value: number;
   label: string;
 }
 
 const Tags: TagOption[] = [
-  { value: 1, label: "aaa" },
-  { value: 2, label: "bbb" },
-  { value: 3, label: "ccc" },
-  { value: 4, label: "ddd" },
-  { value: 5, label: "eee" },
-  { value: 6, label: "fff" },
-  { value: 7, label: "ggg" },
-  { value: 8, label: "hhh" },
-  { value: 9, label: "jjj" },
+  { value: 1, label: "Shared" },
+  { value: 2, label: "Personal" },
+  { value: 3, label: "Selfie" }
 ];
 
 const vaultOptions = [
@@ -63,8 +57,7 @@ export default function AddMemory() {
   const [file, setFile] = useState<File | null>(null);
   const [cid, setCid] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [txHash, setTxHash] = useState<string>("");
-  const [blockHash, setBlockHash] = useState<string>("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   // create an ethers provider
   let ethersProvider;
@@ -77,8 +70,19 @@ export default function AddMemory() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
     if (e.target.files) {
       setFile(e.target.files[0]);
+    }
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
     }
   };
 
@@ -257,21 +261,26 @@ export default function AddMemory() {
   };
 
   return (
-    <div className="flex justify-center">
-      <div className="w-5/6">
-        <div className="flex justify-center main-content gap-x-1 my-4">
-          <div className="rounded-lg border border-green-100 p-5 bg-green-100 w-2/3 ml-4 mr-2">
-            <h4 className="text-xl mb-2 font-bold">Add Memory</h4>
-            <form className="" onSubmit={handleStoreMemory}>
-              <div className="mb-4">
-                <div className="flex items-center justify-center w-full">
-                  <label
-                    htmlFor="dropzone-file"
-                    className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
-                  >
-                    <h1 className="text-4xl text-center">
-                      {file ? file.name : ""}
-                    </h1>
+    <div className="flex justify-center bg-gray-200 w-full">
+      <div className="flex justify-center main-content gap-x-1 mt-4 mb-20 w-full">
+        <div className="rounded-lg border p-5 bg-white ml-4 mr-2 shadow-lg shadow-gray-500/50 w-1/2">
+          <h4 className="text-xl mb-2 font-bold">Add Memory</h4>
+          <form className="" onSubmit={handleStoreMemory}>
+            <div className="mb-4">
+              <div className="flex items-center justify-center w-full">
+                <label
+                  htmlFor="dropzone-file"
+                  className="flex flex-col items-center justify-center w-full h-[500px] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 shadow-lg shadow-gray-500/50"
+                >
+                  {imagePreview && (
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-[500px] rounded-lg"
+                    />
+                  )}
+
+                  {!imagePreview && (
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                       <svg
                         className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
@@ -296,249 +305,186 @@ export default function AddMemory() {
                         SVG, PNG, JPG or GIF (MAX. 800x400px)
                       </p>
                     </div>
-                    <input
-                      id="dropzone-file"
-                      type="file"
-                      className="hidden"
-                      onChange={handleFileChange}
-                    />
-                  </label>
-                </div>
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="vault"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Select a vault
-                </label>
-                <select
-                  id="vault"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  value={vault}
-                  onChange={(e) => setVault(e.target.value as VaultOption)}
-                >
-                  {vaultOptions.map((option, index) => (
-                    <option key={index} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  )}
 
-              <div className="mb-4">
-                <label
-                  htmlFor="headline"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  LSP7 NFT Token Name
-                </label>
-                <input
-                  id="headline"
-                  type="text"
-                  className="rounded p-2 w-full border-solid border-2 border-black-500"
-                  placeholder="Input the Token Name"
-                  value={tokenName}
-                  onChange={(e) => setTokenName(e.target.value)}
-                />
-              </div>
-
-              <div className="mb-4">
-                <label
-                  htmlFor="headline"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  LSP7 NFT Token Symbol
-                </label>
-                <input
-                  id="headline"
-                  type="text"
-                  className="rounded p-2 w-full border-solid border-2 border-black-500"
-                  placeholder="Input the Token Symbol"
-                  value={tokenSymbol}
-                  onChange={(e) => setTokenSymbol(e.target.value)}
-                />
-              </div>
-
-              <div className="mb-4">
-                <label
-                  htmlFor="copies"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  How many copies?
-                </label>
-                <div className="flex items-center mb-4">
                   <input
-                    id="copies-1"
-                    type="radio"
-                    value="1"
-                    name="copies"
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                    checked={copies === 1}
-                    onChange={() => setCopies(1)}
+                    id="dropzone-file"
+                    type="file"
+                    className="hidden"
+                    onChange={handleFileChange}
                   />
-                  <label
-                    htmlFor="copies-1"
-                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >
-                    1
-                  </label>
-                </div>
-                <div className="flex items-center mb-4">
-                  <input
-                    id="copies-3"
-                    type="radio"
-                    value="3"
-                    name="copies"
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                    checked={copies === 3}
-                    onChange={() => setCopies(3)}
-                  />
-                  <label
-                    htmlFor="copies-3"
-                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >
-                    3 (recommended)
-                  </label>
-                </div>
-                <div className="flex items-center">
-                  <input
-                    id="copies-10"
-                    type="radio"
-                    value="10"
-                    name="copies"
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                    checked={copies === 10}
-                    onChange={() => setCopies(10)}
-                  />
-                  <label
-                    htmlFor="copies-10"
-                    className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                  >
-                    10
-                  </label>
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <label
-                  htmlFor="headline"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Headline
                 </label>
+              </div>
+            </div>
+            <div className="mb-4">
+              <label
+                htmlFor="vault"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >
+                Select a vault
+              </label>
+              <select
+                id="vault"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                value={vault}
+                onChange={(e) => setVault(e.target.value as VaultOption)}
+              >
+                {vaultOptions.map((option, index) => (
+                  <option key={index} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="headline"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >
+                Token Name
+              </label>
+              <input
+                id="headline"
+                type="text"
+                className="rounded p-2 w-full border-solid border-2 border-black-500"
+                placeholder="Input the Token Name"
+                value={tokenName}
+                onChange={(e) => setTokenName(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="headline"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >
+                Token Symbol
+              </label>
+              <input
+                id="headline"
+                type="text"
+                className="rounded p-2 w-full border-solid border-2 border-black-500"
+                placeholder="Input the Token Symbol"
+                value={tokenSymbol}
+                onChange={(e) => setTokenSymbol(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="copies"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >
+                How many copies?
+              </label>
+              <div className="flex items-center mb-4">
                 <input
-                  id="headline"
-                  type="text"
-                  className="rounded p-2 w-full border-solid border-2 border-black-500"
-                  placeholder="Input the headline"
-                  value={headline}
-                  onChange={(e) => setHeadline(e.target.value)}
+                  id="copies-1"
+                  type="radio"
+                  value="1"
+                  name="copies"
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                  checked={copies === 1}
+                  onChange={() => setCopies(1)}
                 />
-              </div>
-
-              <div className="mb-4">
                 <label
-                  htmlFor="description"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  htmlFor="copies-1"
+                  className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                 >
-                  Description
+                  1
                 </label>
-                <textarea
-                  id="description"
-                  className="resize-y rounded-md w-full h-20 p-2"
-                  placeholder="Input the description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
               </div>
-
-              <div className="mb-4">
-                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Select Tags
-                </label>
-                <Select
-                  options={Tags}
-                  onChange={handleTagChange}
-                  isMulti
-                  value={selectedTags}
+              <div className="flex items-center mb-4">
+                <input
+                  id="copies-3"
+                  type="radio"
+                  value="3"
+                  name="copies"
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                  checked={copies === 3}
+                  onChange={() => setCopies(3)}
                 />
-              </div>
-              <div className="w-full flex justify-center">
-                <button
-                  // disabled
-                  type="submit"
-                  className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
+                <label
+                  htmlFor="copies-3"
+                  className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
                 >
-                  {uploading ? "Storing..." : "Store Memory On Chain"}
-                </button>
+                  3 (recommended)
+                </label>
               </div>
-            </form>
-          </div>
-          <div className="rounded-lg border border-green-100 p-5 bg-green-50 w-1/3 mr-4 ml-2">
-            <h1 className="text-xl text-red-500 mb-6">LSP7 Collection Info</h1>
-            <div className="mb-2">
-              <div className="w-full">LSP8 Collection Contract Address</div>
-              <div className="w-full text-xs">
-                0x208a4d0224f7b4d52e5ee0b4b376b3ec78fe5c44
-              </div>
-            </div>
-            <div className="mb-2">
-              <div className="w-full">Owner Of Initial LSP7 NFT</div>
-              <div className="w-full text-xs">
-                {wallet ? wallet.accounts[0].address : "None"}
-              </div>
-            </div>
-            <div className=" mb-2">
-              <div className="w-full">LSP7 NFT Token Name</div>
-              <div className="w-full">{tokenName ? tokenName : "None"}</div>
-            </div>
-            <div className=" mb-2">
-              <div className="w-full">LSP7 NFT Token Symbol</div>
-              <div className="w-full">{tokenSymbol ? tokenSymbol : "None"}</div>
-            </div>
-            <div className=" mb-2">
-              <div className="w-full text-xs">
-                Transaction Hash(Please click address to confirm in detail)
-              </div>
-              <div className="w-full text-sm text-ellipsis overflow-hidden">
-                {txHash ? (
-                  <a
-                    target="_blank"
-                    href={
-                      "https://explorer.execution.mainnet.lukso.network/tx/" +
-                      txHash
-                    }
-                  >
-                    {txHash}
-                  </a>
-                ) : (
-                  "None"
-                )}
+              <div className="flex items-center">
+                <input
+                  id="copies-10"
+                  type="radio"
+                  value="10"
+                  name="copies"
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                  checked={copies === 10}
+                  onChange={() => setCopies(10)}
+                />
+                <label
+                  htmlFor="copies-10"
+                  className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                >
+                  10
+                </label>
               </div>
             </div>
 
-            <div className=" mb-2">
-              <div className="w-full text-xs">
-                Block Hash(Please click address to confirm in detail)
-              </div>
-              <div className="w-full text-sm text-ellipsis overflow-hidden">
-                {blockHash ? (
-                  <a
-                    target="_blank"
-                    href={
-                      "https://explorer.execution.mainnet.lukso.network/tx/" +
-                      txHash
-                    }
-                  >
-                    {blockHash}
-                  </a>
-                ) : (
-                  "None"
-                )}
-              </div>
+            <div className="mb-4">
+              <label
+                htmlFor="headline"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >
+                Headline
+              </label>
+              <input
+                id="headline"
+                type="text"
+                className="rounded p-2 w-full border-solid border-2 border-black-500"
+                placeholder="Input the headline"
+                value={headline}
+                onChange={(e) => setHeadline(e.target.value)}
+              />
             </div>
-          </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="description"
+                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              >
+                Description
+              </label>
+              <textarea
+                id="description"
+                className="resize-y rounded-md w-full h-20 p-2 border-2"
+                placeholder="Input the description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                Select Tags
+              </label>
+              <Select
+                options={Tags}
+                onChange={handleTagChange}
+                isMulti
+                value={selectedTags}
+              />
+            </div>
+            <div className="w-full flex justify-center">
+              <button
+                // disabled
+                type="submit"
+                className="mt-4 bg-blue-500 text-white py-2 px-4 rounded shadow-lg shadow-gray-500/50"
+              >
+                {uploading ? "Storing..." : "Store Memory On Chain"}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

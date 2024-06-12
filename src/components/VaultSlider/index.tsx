@@ -187,7 +187,7 @@ const VaultSlider = () => {
                   Deploy vault
                 </button>
                 <Link
-                  href={`/vault/` + "0x1684951ebee94fd7ae890456c8b5374ae6ca8833"}
+                  href={`/vault/` + "0x7126910a279dcd50c7488f714d9b53c125382855"}
                   // onClick={handleGoToVault}
                   className="border-2 border-sky-700 p-1 text-sm rounded text-sky-700 shadow-lg shadow-gray-500/50 cursor-pointer"
                 >
