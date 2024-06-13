@@ -12,6 +12,19 @@ import lsp4Schema from "@erc725/erc725.js/schemas/LSP4DigitalAsset.json";
 import { generateEncryptionKey, decryptFile } from "@/utils/upload";
 import { convertUnixTimestampToCustomDate, hexToDecimal } from "@/utils/format";
 
+// Define the types you expect
+type URLDataWithHash = {
+  url: string;
+  hash: string;
+};
+
+type Data = string | number | boolean | URLDataWithHash | Data[];
+
+// Type guard to check if the value has a 'url' property
+function hasUrlProperty(value: any): value is URLDataWithHash {
+  return value && typeof value === "object" && "url" in value;
+}
+
 export default function Page({ params }: { params: { slug: string } }) {
   const tokenId = params.slug;
   const [{ wallet }] = useConnectWallet();
@@ -24,7 +37,7 @@ export default function Page({ params }: { params: { slug: string } }) {
   const [vaultAddress, setVaultAddress] = useState<string>();
   const [nftAddress, setNftAddress] = useState<string>();
   const [nftSymbol, setNftSymbol] = useState<string>();
-  const [nftLike, setNftLike] = useState<string>('0');
+  const [nftLike, setNftLike] = useState<string>("0");
 
   useEffect(() => {
     fetchNFT();
@@ -65,7 +78,13 @@ export default function Page({ params }: { params: { slug: string } }) {
       const _vaultSymbol = await nftAsset.getData("LSP4TokenSymbol");
       setNftSymbol(_vaultSymbol.value as string);
       const nft = await nftAsset.getData("LSP4Metadata");
-      const ipfsHash = nft?.value?.url;
+      let ipfsHash;
+      if (hasUrlProperty(nft?.value)) {
+        ipfsHash = nft.value.url;
+      } else {
+        // Handle the case where vault?.value does not have a 'url' property
+        console.log("The value does not have a 'url' property.");
+      }
       const encryptionKey = await generateEncryptionKey(
         process.env.NEXT_PUBLIC_ENCRYPTION_KEY!
       );
@@ -101,7 +120,7 @@ export default function Page({ params }: { params: { slug: string } }) {
       );
       setMintedDate(md);
 
-      const likes =  await VaultContract.getLikes(tokenId);
+      const likes = await VaultContract.getLikes(tokenId);
       setNftLike(likes.length);
     }
   };
@@ -129,7 +148,7 @@ export default function Page({ params }: { params: { slug: string } }) {
       );
 
       await VaultContract.like(tokenId);
-      const likes =  await VaultContract.getLikes(tokenId);
+      const likes = await VaultContract.getLikes(tokenId);
       setNftLike(likes.length);
     } else {
       alert("Connect the wallet");

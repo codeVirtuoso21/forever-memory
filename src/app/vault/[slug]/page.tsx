@@ -19,6 +19,19 @@ interface TokenData {
   tokenId: string;
 }
 
+// Define the types you expect
+type URLDataWithHash = {
+  url: string;
+  hash: string;
+};
+
+type Data = string | number | boolean | URLDataWithHash | Data[];
+
+// Type guard to check if the value has a 'url' property
+function hasUrlProperty(value: any): value is URLDataWithHash {
+  return value && typeof value === "object" && "url" in value;
+}
+
 export default function Page({ params }: { params: { slug: string } }) {
   const vaultAddress = params.slug;
 
@@ -67,7 +80,13 @@ export default function Page({ params }: { params: { slug: string } }) {
       setVaultName(name.value as string);
       setVaultSymbol(symbol.value as string);
       const vault = await vaultAsset.getData("LSP4Metadata");
-      const vault_ipfsHash = vault?.value?.url;
+      let vault_ipfsHash;
+      if (hasUrlProperty(vault?.value)) {
+        vault_ipfsHash = vault.value.url;
+      } else {
+        // Handle the case where vault?.value does not have a 'url' property
+        console.log("The value does not have a 'url' property.");
+      }
       const response = await fetch(`https://ipfs.io/ipfs/${vault_ipfsHash}`);
       if (!response.ok) {
         throw new Error("Failed to fetch image from IPFS");

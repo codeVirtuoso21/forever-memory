@@ -42,6 +42,19 @@ const vaults = [
   },
 ];
 
+// Define the types you expect
+type URLDataWithHash = {
+  url: string;
+  hash: string;
+};
+
+type Data = string | number | boolean | URLDataWithHash | Data[];
+
+// Type guard to check if the value has a 'url' property
+function hasUrlProperty(value: any): value is URLDataWithHash {
+  return value && typeof value === "object" && "url" in value;
+}
+
 interface VaultsData {
   name: string;
   mintedCount: number;
@@ -89,7 +102,13 @@ const VaultSlider = () => {
         );
 
         const vault = await vaultAssets.getData("LSP4Metadata");
-        const ipfsHash = vault?.value?.url;
+        let ipfsHash;
+        if (hasUrlProperty(vault?.value)) {
+          ipfsHash = vault.value.url;
+        } else {
+          // Handle the case where vault?.value does not have a 'url' property
+          console.log("The value does not have a 'url' property.");
+        }
         const encryptionKey = await generateEncryptionKey(
           process.env.NEXT_PUBLIC_ENCRYPTION_KEY!
         );
@@ -108,7 +127,11 @@ const VaultSlider = () => {
         const _description: string = "description";
         const _vaultName = await vaultAssets.getData("LSP4TokenName");
         const _mintedCount = await VaultContract.balanceOf(vaults[i].contract);
-        console.log(_vaultName.value, "== mintedCount", hexToDecimal(_mintedCount._hex));
+        console.log(
+          _vaultName.value,
+          "== mintedCount",
+          hexToDecimal(_mintedCount._hex)
+        );
         console.log("_cid", _cid);
 
         newVaultsDataArray.push({
@@ -160,7 +183,9 @@ const VaultSlider = () => {
             <div
               key={`left-left-` + idx}
               className={`w-1/2 ${
-                idx !== (currentIdx + vaultsDataArray.length - 1) % vaultsDataArray.length
+                idx !==
+                (currentIdx + vaultsDataArray.length - 1) %
+                  vaultsDataArray.length
                   ? "hidden"
                   : ""
               }`}
@@ -176,7 +201,9 @@ const VaultSlider = () => {
             <div
               key={`left-right-` + idx}
               className={`w-1/2 p-3 ${
-                idx !== (currentIdx + vaultsDataArray.length - 1) % vaultsDataArray.length
+                idx !==
+                (currentIdx + vaultsDataArray.length - 1) %
+                  vaultsDataArray.length
                   ? "hidden"
                   : ""
               }`}
@@ -245,9 +272,7 @@ const VaultSlider = () => {
                   Deploy vault
                 </button>
                 <Link
-                  href={
-                    `/vault/` + item.contractAddress
-                  }
+                  href={`/vault/` + item.contractAddress}
                   // onClick={handleGoToVault}
                   className="border-2 border-sky-700 p-1 text-sm rounded text-sky-700 shadow-lg shadow-gray-500/50 cursor-pointer"
                 >
@@ -262,7 +287,9 @@ const VaultSlider = () => {
             <div
               key={`right-left-` + idx}
               className={`w-1/2 ${
-                idx !== (currentIdx + vaultsDataArray.length + 1) % vaultsDataArray.length
+                idx !==
+                (currentIdx + vaultsDataArray.length + 1) %
+                  vaultsDataArray.length
                   ? "hidden"
                   : ""
               }`}
@@ -278,7 +305,9 @@ const VaultSlider = () => {
             <div
               key={`right-right-` + idx}
               className={`w-1/2 p-3 ${
-                idx !== (currentIdx + vaultsDataArray.length + 1) % vaultsDataArray.length
+                idx !==
+                (currentIdx + vaultsDataArray.length + 1) %
+                  vaultsDataArray.length
                   ? "hidden"
                   : ""
               }`}
