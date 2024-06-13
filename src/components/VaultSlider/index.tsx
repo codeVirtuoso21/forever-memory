@@ -42,33 +42,6 @@ const vaults = [
   },
 ];
 
-const data = [
-  {
-    title: "Daily Selfie",
-    headline: "Document Your Journey, Day by Day",
-    mintCount: 35,
-    url: "https://res.cloudinary.com/dsm62xkh7/image/upload/v1686314309/6-1_dlvfoq.png",
-  },
-  {
-    title: "Dear Diary",
-    headline: "Capture Today, Share Tomorrow",
-    mintCount: 54,
-    url: "https://res.cloudinary.com/dsm62xkh7/image/upload/v1686314249/10_2_rkdoln.png",
-  },
-  {
-    title: "Legacy Safe",
-    headline: "Secure Your Data, Pass Down Your Legacy",
-    mintCount: 80,
-    url: "https://res.cloudinary.com/dsm62xkh7/image/upload/v1686314268/1-1_fdc4sn.png",
-  },
-  {
-    title: "Kids Drawings",
-    headline: "Preserve Childhood Magic on the Blockchain",
-    mintCount: 38,
-    url: "https://res.cloudinary.com/dsm62xkh7/image/upload/v1686314309/6-1_dlvfoq.png",
-  },
-];
-
 interface VaultsData {
   name: string;
   mintedCount: number;
@@ -82,7 +55,7 @@ const VaultSlider = () => {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [{ wallet }] = useConnectWallet();
   const [vaultsDataArray, setVaultsDataArray] = useState<VaultsData[]>([]);
-
+  console.log("vaultsDataArray", vaultsDataArray);
   useEffect(() => {
     fetchData();
   }, [wallet]);
@@ -152,8 +125,8 @@ const VaultSlider = () => {
   };
 
   const changeItem = (step: number) => {
-    let newIdx = (currentIdx + step) % data.length;
-    if (newIdx < 0) newIdx = data.length - 1;
+    let newIdx = (currentIdx + step) % vaultsDataArray.length;
+    if (newIdx < 0) newIdx = vaultsDataArray.length - 1;
     setCurrentIdx(newIdx);
   };
 
@@ -187,7 +160,7 @@ const VaultSlider = () => {
             <div
               key={`left-left-` + idx}
               className={`w-1/2 ${
-                idx !== (currentIdx + data.length - 1) % data.length
+                idx !== (currentIdx + vaultsDataArray.length - 1) % vaultsDataArray.length
                   ? "hidden"
                   : ""
               }`}
@@ -203,7 +176,7 @@ const VaultSlider = () => {
             <div
               key={`left-right-` + idx}
               className={`w-1/2 p-3 ${
-                idx !== (currentIdx + data.length - 1) % data.length
+                idx !== (currentIdx + vaultsDataArray.length - 1) % vaultsDataArray.length
                   ? "hidden"
                   : ""
               }`}
@@ -289,7 +262,7 @@ const VaultSlider = () => {
             <div
               key={`right-left-` + idx}
               className={`w-1/2 ${
-                idx !== (currentIdx + data.length + 1) % data.length
+                idx !== (currentIdx + vaultsDataArray.length + 1) % vaultsDataArray.length
                   ? "hidden"
                   : ""
               }`}
@@ -305,7 +278,7 @@ const VaultSlider = () => {
             <div
               key={`right-right-` + idx}
               className={`w-1/2 p-3 ${
-                idx !== (currentIdx + data.length + 1) % data.length
+                idx !== (currentIdx + vaultsDataArray.length + 1) % vaultsDataArray.length
                   ? "hidden"
                   : ""
               }`}

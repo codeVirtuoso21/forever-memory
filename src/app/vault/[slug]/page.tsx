@@ -24,6 +24,7 @@ export default function Page({ params }: { params: { slug: string } }) {
 
   const [tokenDataArray, setTokenDataArray] = useState<TokenData[]>([]);
   const [vaultName, setVaultName] = useState<string>();
+  const [vaultCid, setVaultCid] = useState<string>();
   const [vaultSymbol, setVaultSymbol] = useState<string>();
   const [{ wallet }] = useConnectWallet();
 
@@ -33,6 +34,10 @@ export default function Page({ params }: { params: { slug: string } }) {
 
   const fetchNFT = async () => {
     if (wallet) {
+      const encryptionKey = await generateEncryptionKey(
+        process.env.NEXT_PUBLIC_ENCRYPTION_KEY!
+      );
+
       const ethersProvider = new ethers.providers.Web3Provider(
         wallet.provider,
         "any"
@@ -40,7 +45,7 @@ export default function Page({ params }: { params: { slug: string } }) {
       const owner = wallet.accounts[0].address;
       const signer = ethersProvider.getSigner(owner);
 
-      const ForeverMemoryContract = new ethers.Contract(
+      const VaultContract = new ethers.Contract(
         vaultAddress,
         ForeverMemoryCollection.abi,
         signer
@@ -61,13 +66,22 @@ export default function Page({ params }: { params: { slug: string } }) {
       const symbol = await vaultAsset.getData("LSP4TokenSymbol");
       setVaultName(name.value as string);
       setVaultSymbol(symbol.value as string);
-      // console.log("name", name.value);
-
-      const result = await ForeverMemoryContract.tokenIdsOf(vaultAddress);
-
-      const encryptionKey = await generateEncryptionKey(
-        process.env.NEXT_PUBLIC_ENCRYPTION_KEY!
+      const vault = await vaultAsset.getData("LSP4Metadata");
+      const vault_ipfsHash = vault?.value?.url;
+      const response = await fetch(`https://ipfs.io/ipfs/${vault_ipfsHash}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch image from IPFS");
+      }
+      const encryptedData = await response.arrayBuffer();
+      const decryptedData = await decryptFile(
+        new Uint8Array(encryptedData),
+        encryptionKey
       );
+      const blob = new Blob([decryptedData]); // Creating a blob from decrypted data
+      const _vaultCid = URL.createObjectURL(blob);
+      setVaultCid(_vaultCid);
+
+      const result = await VaultContract.tokenIdsOf(vaultAddress);
 
       // NFT info
       if (result.length > 0) {
@@ -79,7 +93,7 @@ export default function Page({ params }: { params: { slug: string } }) {
           );
           const balance = await lsp7Contract.balanceOf(owner);
           if (hexToDecimal(balance._hex) == 0) continue;
-          const tokenIdMetadata = await ForeverMemoryContract.getDataForTokenId(
+          const tokenIdMetadata = await VaultContract.getDataForTokenId(
             result[i],
             ERC725YDataKeys.LSP4["LSP4Metadata"]
           );
@@ -138,13 +152,23 @@ export default function Page({ params }: { params: { slug: string } }) {
 
   return (
     <div className="px-6 bg-gray-200 pt-10 h-[800px]">
-      <div className="TopPanel p-2 shadow-lg shadow-gray-500/50 rounded pt-5 bg-white">
-        <div className="font-bold text-5xl">{vaultName}</div>
-        <div className="">headline</div>
-        <div className="flex gap-2 pt-5">
-          <div className="p-1 bg-gray-200 rounded sm">Shared</div>
-          <div className="p-1 bg-gray-200 rounded sm">Personal</div>
-          <div className="p-1 bg-gray-200 rounded sm">Selfie</div>
+      <div className="TopPanel p-2 shadow-lg shadow-gray-500/50 rounded bg-white flex">
+        <div className="w-1/2">
+          <img
+            className={`carousel-item w-full h-[200px]`}
+            src={vaultCid}
+            alt=""
+          />
+        </div>
+        <div className="w-1/2 px-3 py-1">
+          <div className="font-bold text-5xl">{vaultName}</div>
+          <div className="pt-3">headline</div>
+          <div className="pt-3 h-[50px]">description</div>
+          <div className="flex gap-2 pt-5">
+            <div className="p-1 bg-indigo-200 rounded sm">Shared</div>
+            <div className="p-1 bg-gray-200 rounded sm">Personal</div>
+            <div className="p-1 bg-pink-200 rounded sm">Selfie</div>
+          </div>
         </div>
       </div>
 

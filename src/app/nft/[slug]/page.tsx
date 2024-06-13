@@ -24,6 +24,7 @@ export default function Page({ params }: { params: { slug: string } }) {
   const [vaultAddress, setVaultAddress] = useState<string>();
   const [nftAddress, setNftAddress] = useState<string>();
   const [nftSymbol, setNftSymbol] = useState<string>();
+  const [nftLike, setNftLike] = useState<string>('0');
 
   useEffect(() => {
     fetchNFT();
@@ -99,6 +100,39 @@ export default function Page({ params }: { params: { slug: string } }) {
         "yyyy-MM-dd HH:mm"
       );
       setMintedDate(md);
+
+      const likes =  await VaultContract.getLikes(tokenId);
+      setNftLike(likes.length);
+    }
+  };
+
+  const handleLike = async () => {
+    if (wallet) {
+      const ethersProvider = new ethers.providers.Web3Provider(
+        wallet.provider,
+        "any"
+      );
+      const owner = wallet.accounts[0].address;
+      const signer = ethersProvider.getSigner(owner);
+
+      const lsp7Contract = new ethers.Contract(
+        bytes32ToAddress(tokenId),
+        ForeverMemoryCollection.abi,
+        signer
+      );
+      const creator = await lsp7Contract.owner();
+
+      const VaultContract = new ethers.Contract(
+        creator,
+        ForeverMemoryCollection.abi,
+        signer
+      );
+
+      await VaultContract.like(tokenId);
+      const likes =  await VaultContract.getLikes(tokenId);
+      setNftLike(likes.length);
+    } else {
+      alert("Connect the wallet");
     }
   };
 
@@ -123,10 +157,13 @@ export default function Page({ params }: { params: { slug: string } }) {
             <div className="p-3 rounded bg-white shadow-lg shadow-gray-500/50 rounded">
               <div className="flex gap-4">
                 <div className="p-1 bg-indigo-500 rounded sm text-white justify-center flex w-[55px] h-[30px]">
-                  <div className="flex items-center justify-center h-full gap-1">
+                  <button
+                    onClick={handleLike}
+                    className="flex items-center justify-center h-full gap-1"
+                  >
                     <FaHeart />
-                    15
-                  </div>
+                    {nftLike}
+                  </button>
                 </div>
                 <div className="p-1 bg-indigo-500 rounded sm text-white justify-center flex w-[55px] h-[30px]">
                   <div className="flex items-center justify-center h-full gap-1">
