@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useRef, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { FaAngleLeft, FaAngleRight, FaRegCircleCheck } from "react-icons/fa6";
 import ForeverMemoryCollection from "@/smartcontracts/artifacts/ForeverMemoryCollection.json";
@@ -83,7 +83,7 @@ const VaultSlider = () => {
       const signer = ethersProvider.getSigner(owner);
       const newVaultsDataArray: VaultsData[] = [];
 
-      for (let i = 0; i < vaults.length - 1; i++) {
+      for (let i = 0; i < vaults.length; i++) {
         const VaultContract = new ethers.Contract(
           vaults[i].contract,
           ForeverMemoryCollection.abi,
@@ -127,12 +127,6 @@ const VaultSlider = () => {
         const _description: string = "description";
         const _vaultName = await vaultAssets.getData("LSP4TokenName");
         const _mintedCount = await VaultContract.balanceOf(vaults[i].contract);
-        console.log(
-          _vaultName.value,
-          "== mintedCount",
-          hexToDecimal(_mintedCount._hex)
-        );
-        console.log("_cid", _cid);
 
         newVaultsDataArray.push({
           name: _vaultName.value as string,
