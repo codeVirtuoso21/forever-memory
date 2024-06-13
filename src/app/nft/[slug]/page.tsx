@@ -147,10 +147,15 @@ export default function Page({ params }: { params: { slug: string } }) {
         signer
       );
 
-      await VaultContract.like(tokenId);
-      const likes = await VaultContract.getLikes(tokenId);
-      setNftLike(likes.length);
-      alert("Like Success");
+      const likesA = await VaultContract.getLikes(tokenId);
+      if (likesA.includes(owner)) {
+        alert("Already liked");
+      } else {
+        await VaultContract.like(tokenId);
+        const likesB = await VaultContract.getLikes(tokenId);
+        setNftLike(likesB.length);
+        alert("Like Success");
+      }
     } else {
       alert("Connect the wallet");
     }
