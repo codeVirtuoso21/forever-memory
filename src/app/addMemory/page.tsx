@@ -10,9 +10,9 @@ import LSP8Collection from "@/smartcontracts/artifacts/LSP8Collection.json";
 import ForeverMemoryCollection from "@/smartcontracts/artifacts/ForeverMemoryCollection.json";
 import { useConnectWallet } from "@web3-onboard/react";
 import { FMTContract } from "@/components/MasterWalletProvider";
+import { convertUnixTimestampToCustomDate, hexToDecimal } from "@/utils/format";
 import "./index.css";
-const ForeverMemoryCollectionContractAddress =
-  "0x7126910a279dcd50c7488f714d9b53c125382855"; // Daily Selfie Contract Address on Mainnet
+
 interface TagOption {
   value: number;
   label: string;
@@ -21,39 +21,51 @@ interface TagOption {
 const Tags: TagOption[] = [
   { value: 1, label: "Shared" },
   { value: 2, label: "Personal" },
-  { value: 3, label: "Selfie" }
+  { value: 3, label: "Selfie" },
 ];
 
 const vaultOptions = [
-  "Daily Selfie",
-  "Dear Diary",
-  "Kids Drawings",
-  "Life Capsule",
-  "Legacy Safe",
-  "Time Capsule",
-  "Digital Legacy",
+  {
+    label: "Daily Selfie",
+    contract: "0x8e0c1b47a9216e34267e3b2a3142057456e23a56",
+  },
+  {
+    label: "Dear Diary",
+    contract: "0x7c56cf6d4bfd8bc6557cdef93b61899d33636e36",
+  },
+  {
+    label: "Kids Drawings",
+    contract: "0xdd9e19712fc69d0c455dee0876a2649941af50d0",
+  },
+  {
+    label: "Life Capsule",
+    contract: "0xbfb655cb56617aeb962e2dd154e561b4a0787955",
+  },
+  {
+    label: "Legacy Safe",
+    contract: "0x793861c934eb4e3e280d63683ea1b47e35d61d9e",
+  },
+  {
+    label: "Time Capsule",
+    contract: "0xfa5fd6e8b51cb732d67c1a79456901f8d1d39786",
+  },
+  {
+    label: "Digital Legacy",
+    contract: "0x28c7f1b2bd487be7a5f0dbff2c857b218cd32316",
+  },
 ] as const;
 
 type VaultOption = (typeof vaultOptions)[number];
 
-interface MemoryData {
-  vault: VaultOption;
-  copies: number;
-  headline: string;
-  description: string;
-  tags: string[];
-  file?: File;
-}
-
 export default function AddMemory() {
-  const [{ wallet, connecting }] = useConnectWallet();
+  const [{ wallet }] = useConnectWallet();
   const [selectedTags, setSelectedTags] = useState<MultiValue<TagOption>>([]);
   const [headline, setHeadline] = useState<string>("");
   const [tokenName, setTokenName] = useState<string>("");
   const [tokenSymbol, setTokenSymbol] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [copies, setCopies] = useState<number>(3); // Default to 3 copies
-  const [vault, setVault] = useState<VaultOption>("Daily Selfie");
+  const [vault, setVault] = useState<VaultOption>(vaultOptions[0]);
   const [file, setFile] = useState<File | null>(null);
   const [cid, setCid] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -84,6 +96,11 @@ export default function AddMemory() {
     } else {
       setImagePreview(null);
     }
+  };
+
+  // Update the setter to set the entire object
+  const handleVaultChange = (selectedOption: VaultOption) => {
+    setVault(selectedOption);
   };
 
   const createLSP8Collection = async () => {
@@ -142,26 +159,26 @@ export default function AddMemory() {
 
         const resData = await res.json();
         setCid(resData.ipfsHash);
-        console.log("resData.ipfsHash", resData.ipfsHash);
 
         ethersProvider = new ethers.providers.Web3Provider(
           wallet.provider,
           "any"
         );
         const owner = wallet.accounts[0].address;
-        const provider = wallet.provider;
         const signer = await ethersProvider.getSigner(owner);
-        console.log("owner", owner);
 
         const ForeverMemoryContract = new ethers.Contract(
-          ForeverMemoryCollectionContractAddress,
+          vault.contract,
           ForeverMemoryCollection.abi,
           signer
         );
 
-        const isOneDay = await ForeverMemoryContract.isOneDay(owner);
+        const _lastClaimed = await ForeverMemoryContract.lastClaimed(owner);
+        const lastClaimed = hexToDecimal(_lastClaimed._hex);
+        const timestamp: number = Date.now();
 
-        if (isOneDay) {
+        // first mint or over 24 hours
+        if (lastClaimed == 0 || timestamp / 1000 - lastClaimed > 86400) {
           ///////////// mint function logic
           const lsp7SubCollectionMetadata = {
             LSP4Metadata: {
@@ -169,6 +186,7 @@ export default function AddMemory() {
               headline,
               description,
               links: [],
+              tags: [],
               icons: [
                 {
                   width: 256,
@@ -206,7 +224,7 @@ export default function AddMemory() {
               attributes: [],
             },
           };
-          const lsp7SubCollectionMetadataCID = "ipfs://" + cid;
+          const lsp7SubCollectionMetadataCID = cid;
           const erc725 = new ERC725(LSP4DigitalAsset, "", "", {});
           const encodeLSP7Metadata = erc725.encodeData([
             {
@@ -217,7 +235,6 @@ export default function AddMemory() {
               },
             },
           ]);
-          console.log("owner", owner);
 
           const tx = await ForeverMemoryContract.mint(
             tokenName, // tokenName
@@ -228,27 +245,29 @@ export default function AddMemory() {
             owner, //receiverOfInitialTokens_
             encodeLSP7Metadata.values[0]
           );
+          console.log("tx", tx);
           //////////// send reward token logic
-          const gasLimit = 100000;
-          const rewardAmount = await ForeverMemoryContract.rewardAmount();
-          const mWalletOwner = await FMTContract.owner();
-          console.log("mWalletOwner:", mWalletOwner);
-          const decimals = await FMTContract.balanceOf(mWalletOwner);
-          console.log("decimals:", decimals);
-          const amount = ethers.utils.parseUnits(rewardAmount, 18);
-          console.log("amount:", amount);
-          const txt = await FMTContract.transfer(
-            mWalletOwner,
-            owner,
-            amount,
-            false,
-            "0x",
-            { gasLimit: gasLimit }
-          );
-          console.log("tx:", txt);
+          // const gasLimit = 100000;
+          // const rewardAmount = await ForeverMemoryContract.rewardAmount();
+          // const mWalletOwner = await FMTContract.owner();
+          // console.log("mWalletOwner:", mWalletOwner);
+          // const decimals = await FMTContract.balanceOf(mWalletOwner);
+          // console.log("decimals:", decimals);
+          // const amount = ethers.utils.parseUnits(rewardAmount, 18);
+          // console.log("amount:", amount);
+          // const txt = await FMTContract.transfer(
+          //   mWalletOwner,
+          //   owner,
+          //   amount,
+          //   false,
+          //   "0x",
+          //   { gasLimit: gasLimit }
+          // );
+          // console.log("tx:", txt);
           setUploading(false);
+          alert("You minted one memory successfully!");
         } else {
-          alert("Minting only once a day!");
+          alert("Minting of Each Vault only once a day!");
         }
       } catch (e) {
         console.log(e);
@@ -326,12 +345,19 @@ export default function AddMemory() {
               <select
                 id="vault"
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                value={vault}
-                onChange={(e) => setVault(e.target.value as VaultOption)}
+                value={vault.label} // Set the value to vault.label
+                onChange={(e) => {
+                  const selectedOption = vaultOptions.find(
+                    (option) => option.label === e.target.value
+                  );
+                  if (selectedOption) {
+                    handleVaultChange(selectedOption); // Call the handler with the selected option
+                  }
+                }}
               >
                 {vaultOptions.map((option, index) => (
-                  <option key={index} value={option}>
-                    {option}
+                  <option key={index} value={option.label}>
+                    {option.label}
                   </option>
                 ))}
               </select>

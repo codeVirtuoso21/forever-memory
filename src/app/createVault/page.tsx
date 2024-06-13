@@ -88,7 +88,7 @@ export default function CreateVault() {
             attributes: [],
           },
         };
-        const lsp8CollectionMetadataCID = "ipfs://" + resData.ipfsHash;
+        const lsp8CollectionMetadataCID = resData.ipfsHash;
         const encodeLSP8Metadata = erc725.encodeData([
           {
             keyName: "LSP4Metadata",
