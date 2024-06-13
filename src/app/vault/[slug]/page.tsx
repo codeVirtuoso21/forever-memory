@@ -12,6 +12,7 @@ import LSP4DigitalAsset from "@erc725/erc725.js/schemas/LSP4DigitalAsset.json";
 import { INTERFACE_IDS, ERC725YDataKeys } from "@lukso/lsp-smart-contracts";
 import { generateEncryptionKey, decryptFile } from "@/utils/upload";
 
+
 interface TokenData {
   cid: string;
   tokenSymbol: string;
@@ -40,7 +41,8 @@ export default function Page({ params }: { params: { slug: string } }) {
   const [vaultCid, setVaultCid] = useState<string>();
   const [vaultSymbol, setVaultSymbol] = useState<string>();
   const [{ wallet }] = useConnectWallet();
-
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
+  
   useEffect(() => {
     fetchNFT();
   }, [wallet]);
@@ -166,10 +168,18 @@ export default function Page({ params }: { params: { slug: string } }) {
           ]);
         }
       }
+      setIsDownloading(true);
     }
   };
 
-  return (
+  return !isDownloading ? (
+    <div className="flex space-x-2 justify-center items-center bg-gray-200 h-screen dark:invert">
+      <span className="sr-only">Loading...</span>
+      <div className="h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+      <div className="h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+      <div className="h-8 w-8 bg-black rounded-full animate-bounce"></div>
+    </div>
+  ) : (
     <div className="px-6 bg-gray-200 pt-10 h-[800px]">
       <div className="TopPanel p-2 shadow-lg shadow-gray-500/50 rounded bg-white flex">
         <div className="w-1/2">

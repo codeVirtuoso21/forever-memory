@@ -38,6 +38,7 @@ export default function Page({ params }: { params: { slug: string } }) {
   const [nftAddress, setNftAddress] = useState<string>();
   const [nftSymbol, setNftSymbol] = useState<string>();
   const [nftLike, setNftLike] = useState<string>("0");
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
 
   useEffect(() => {
     fetchNFT();
@@ -122,6 +123,8 @@ export default function Page({ params }: { params: { slug: string } }) {
 
       const likes = await VaultContract.getLikes(tokenId);
       setNftLike(likes.length);
+
+      setIsDownloading(true);
     }
   };
 
@@ -161,7 +164,19 @@ export default function Page({ params }: { params: { slug: string } }) {
     }
   };
 
-  return (
+  const handleSend = () => {
+    console.log("handle send");
+    setShowModal(false);
+  };
+
+  return !isDownloading ? (
+    <div className="flex space-x-2 justify-center items-center bg-white h-screen dark:invert">
+      <span className="sr-only">Loading...</span>
+      <div className="h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+      <div className="h-8 w-8 bg-black rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+      <div className="h-8 w-8 bg-black rounded-full animate-bounce"></div>
+    </div>
+  ) : (
     <div className="w-full bg-gray-200 py-10">
       <div className="w-3/4 mx-auto">
         <div className="flex gap-4">
@@ -319,7 +334,7 @@ export default function Page({ params }: { params: { slug: string } }) {
                     <button
                       className="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                       type="button"
-                      onClick={() => setShowModal(false)}
+                      onClick={() => handleSend()}
                     >
                       Send
                     </button>
