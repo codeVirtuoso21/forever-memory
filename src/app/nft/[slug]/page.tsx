@@ -251,9 +251,9 @@ export default function Page({ params }: { params: { slug: string } }) {
             asdflsadkjflk
           </div>
           <div className="flex gap-2 pt-5">
-            <div className="p-1 bg-gray-200 rounded sm">Shared</div>
+            <div className="p-1 bg-indigo-200 rounded sm">Shared</div>
             <div className="p-1 bg-gray-200 rounded sm">Personal</div>
-            <div className="p-1 bg-gray-200 rounded sm">Selfie</div>
+            <div className="p-1 bg-pink-200 rounded sm">Selfie</div>
           </div>
         </div>
 
