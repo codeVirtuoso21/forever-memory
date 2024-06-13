@@ -150,6 +150,7 @@ export default function Page({ params }: { params: { slug: string } }) {
       await VaultContract.like(tokenId);
       const likes = await VaultContract.getLikes(tokenId);
       setNftLike(likes.length);
+      alert("Like Success");
     } else {
       alert("Connect the wallet");
     }
