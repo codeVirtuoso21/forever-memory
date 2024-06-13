@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
-import ForeverMemoryCollection from "@/smartcontracts/artifacts/ForeverMemoryCollection.json";
+import ForeverMemoryCollection from "@/artifacts/ForeverMemoryCollection.json";
 import { ethers } from "ethers";
 import { useConnectWallet } from "@web3-onboard/react";
 import { bytes32ToAddress, hexToDecimal } from "@/utils/format"; // Adjust the import path as necessary
 import { ERC725 } from "@erc725/erc725.js";
 import lsp4Schema from "@erc725/erc725.js/schemas/LSP4DigitalAsset.json";
-import LSP4DigitalAsset from "@erc725/erc725.js/schemas/LSP4DigitalAsset.json";
-import { INTERFACE_IDS, ERC725YDataKeys } from "@lukso/lsp-smart-contracts";
+import { ERC725YDataKeys } from "@lukso/lsp-smart-contracts";
 import { generateEncryptionKey, decryptFile } from "@/utils/upload";
 
 

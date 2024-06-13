@@ -6,7 +6,6 @@ import { FaBars, FaTimes } from "react-icons/fa";
 import { useConnectWallet } from "@web3-onboard/react";
 
 import "./index.css";
-const ownerAddress = "0xeedA3543c152168E23D0Df3385b8911A039C69D4";
 
 const Navbar = () => {
   const [nav, setNav] = useState(false);

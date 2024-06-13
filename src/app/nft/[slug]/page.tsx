@@ -3,14 +3,13 @@
 import React, { useState, useEffect } from "react";
 import { FaHeart } from "react-icons/fa6";
 import { BsChatLeftTextFill, BsFillShareFill } from "react-icons/bs";
-import ForeverMemoryCollection from "@/smartcontracts/artifacts/ForeverMemoryCollection.json";
+import ForeverMemoryCollection from "@/artifacts/ForeverMemoryCollection.json";
 import { useConnectWallet } from "@web3-onboard/react";
 import { ethers } from "ethers";
-import { bytes32ToAddress } from "@/utils/format";
 import { ERC725 } from "@erc725/erc725.js";
 import lsp4Schema from "@erc725/erc725.js/schemas/LSP4DigitalAsset.json";
 import { generateEncryptionKey, decryptFile } from "@/utils/upload";
-import { convertUnixTimestampToCustomDate, hexToDecimal } from "@/utils/format";
+import { convertUnixTimestampToCustomDate, hexToDecimal, bytes32ToAddress } from "@/utils/format";
 
 // Define the types you expect
 type URLDataWithHash = {
@@ -164,9 +163,25 @@ export default function Page({ params }: { params: { slug: string } }) {
     }
   };
 
-  const handleSend = () => {
-    console.log("handle send");
-    setShowModal(false);
+  const handleSend = async () => {
+    if (wallet) {
+      const ethersProvider = new ethers.providers.Web3Provider(
+        wallet.provider,
+        "any"
+      );
+      const owner = wallet.accounts[0].address;
+      const signer = ethersProvider.getSigner(owner);
+
+      const lsp7Contract = new ethers.Contract(
+        bytes32ToAddress(tokenId),
+        ForeverMemoryCollection.abi,
+        signer
+      );
+      const creator = await lsp7Contract.balanceOf(owner);
+      console.log("creator", creator);
+    }
+   
+    // setShowModal(false);
   };
 
   return !isDownloading ? (

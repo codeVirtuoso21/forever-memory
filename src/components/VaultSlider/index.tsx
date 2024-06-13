@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { FaAngleLeft, FaAngleRight, FaRegCircleCheck } from "react-icons/fa6";
-import ForeverMemoryCollection from "@/smartcontracts/artifacts/ForeverMemoryCollection.json";
+import ForeverMemoryCollection from "@/artifacts/ForeverMemoryCollection.json";
 import { ethers } from "ethers";
 import { useConnectWallet } from "@web3-onboard/react";
 import { ERC725 } from "@erc725/erc725.js";
