@@ -4,12 +4,17 @@ import React, { useState, useEffect } from "react";
 import { FaHeart } from "react-icons/fa6";
 import { BsChatLeftTextFill, BsFillShareFill } from "react-icons/bs";
 import ForeverMemoryCollection from "@/artifacts/ForeverMemoryCollection.json";
+import FMT from "@/artifacts/FMT.json";
 import { useConnectWallet } from "@web3-onboard/react";
 import { ethers } from "ethers";
 import { ERC725 } from "@erc725/erc725.js";
 import lsp4Schema from "@erc725/erc725.js/schemas/LSP4DigitalAsset.json";
 import { generateEncryptionKey, decryptFile } from "@/utils/upload";
-import { convertUnixTimestampToCustomDate, hexToDecimal, bytes32ToAddress } from "@/utils/format";
+import {
+  convertUnixTimestampToCustomDate,
+  hexToDecimal,
+  bytes32ToAddress,
+} from "@/utils/format";
 
 // Define the types you expect
 type URLDataWithHash = {
@@ -165,6 +170,32 @@ export default function Page({ params }: { params: { slug: string } }) {
 
   const handleSend = async () => {
     if (wallet) {
+      // Define the provider (e.g., Infura, Alchemy, or a local node)
+      // const providerUrl = "https://4201.rpc.thirdweb.com/";
+      // const provider = new ethers.providers.JsonRpcProvider(providerUrl);
+
+      // // Define the sender's wallet private key (you should handle private keys securely)
+      // const senderPrivateKey: string =
+      //   "0x402fde8f699d25643f6e7f258cc152b61702653ae48869d40aada732dfdea248";
+      // const wallet = new ethers.Wallet(senderPrivateKey, provider);
+
+      // // Define the contract address and ABI
+      // const contractAddress = "0x0a21fe68f7b08023d9D5E3eBc46ABE9B2E487C67";
+      // // Create a contract instance
+      // const contract = new ethers.Contract(contractAddress, FMT.abi, wallet);
+
+      // // Define the receiver address and amount to send
+      // const receiverAddress = "0xa46f37632a0b08fb019C101CFE434483f27CD956";
+      // const amount = ethers.utils.parseUnits("10", 18);
+
+      // const tx = await contract.transfer(receiverAddress, amount, true, "0x");
+      // console.log("Transaction hash:", tx.hash);
+
+      // // Wait for the transaction to be mined
+      // const receipt = await tx.wait();
+      // console.log("Transaction was mined in block:", receipt.blockNumber);
+      // console.log("Transaction successful with receipt:", receipt);
+
       const ethersProvider = new ethers.providers.Web3Provider(
         wallet.provider,
         "any"
@@ -177,10 +208,23 @@ export default function Page({ params }: { params: { slug: string } }) {
         ForeverMemoryCollection.abi,
         signer
       );
-      const creator = await lsp7Contract.balanceOf(owner);
-      console.log("creator", creator);
+
+      const tokenOwner = await lsp7Contract.owner();
+      const tokenIds = await lsp7Contract.tokenIdsOf(tokenOwner);
+      console.log("tokenIds", tokenIds);
+
+      // const tx = await lsp7Contract
+      //   .transfer(
+      //     owner, // sender address
+      //     "0x0051507f422b0Ca092ae038A0887AfE96A31585f", // receiving address
+      //     1, // token amount
+      //     false, // force parameter
+      //     "0x" // additional data
+      //   )
+      //   .send({ from: owner });
+      // console.log("tx", tx);
     }
-   
+
     // setShowModal(false);
   };
 

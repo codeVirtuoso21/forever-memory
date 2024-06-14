@@ -239,7 +239,7 @@ export default function AddMemory() {
             tokenName, // tokenName
             tokenSymbol, //tokenSymbol
             2, //token type, if 1, NFT
-            false, // isNonDivisible
+            true, // isNonDivisible
             copies, // totalSupplyofLSP7
             owner, //receiverOfInitialTokens_
             encodeLSP7Metadata.values[0]
