@@ -25,30 +25,37 @@ export default function Home() {
 
   const fetchNFT = async () => {
     if (wallet) {
-      // const ethersProvider = new ethers.providers.Web3Provider(
-      //   wallet.provider,
-      //   "any"
-      // );
-      // const owner = wallet.accounts[0].address;
-      // const signer = ethersProvider.getSigner(owner);
+      const ethersProvider = new ethers.providers.Web3Provider(
+        wallet.provider,
+        "any"
+      );
+      const owner = wallet.accounts[0].address;
+      const signer = ethersProvider.getSigner(owner);
 
-      // const lsp7Contract = new ethers.Contract(
-      //   "0x595f83eD5AE1E144b777A04D9853284AF5D5d5bf",
-      //   ForeverMemoryCollection.abi,
-      //   signer
-      // );
-
-      // // const tx = await lsp7Contract.balanceOf("0x15f92621533A9c74c98b5dfDeae4197e3b73563A")
-
-      // const gasLimit = 500000;
-      // const tx = await lsp7Contract.transfer(
-      //   "0x595f83eD5AE1E144b777A04D9853284AF5D5d5bf",
-      //   "0xeedA3543c152168E23D0Df3385b8911A039C69D4",
-      //   "0xa46f37632a0b08fb019C101CFE434483f27CD956", 
-      //   3,
-      //   false, { gasLimit: gasLimit }
-      // );
-      // console.log("tx", tx);
+      const vaultAddress = "0x8ad9c817a5a4e63f5b3254479594c24d16a0e4e7";
+      const VaultContract = new ethers.Contract(
+        vaultAddress,
+        ForeverMemoryCollection.abi,
+        signer
+      );
+      
+      // Example value for allowNonOwner, you may adjust it based on your requirements
+      const allowNonOwner = true;
+      // Example empty data, you may replace it with actual data if needed
+      const data = "0x";
+      const gasLimit = 6000000;
+      const amount = 6;
+      const to = "0xa46f37632a0b08fb019C101CFE434483f27CD956";
+      const tokenId = "0x000000000000000000000000b335a358cc5958ac2396bbdd586768c1e8db0b86";
+      const formattedTokenId = ethers.utils.hexZeroPad(tokenId, 32);
+      const tx = await VaultContract.transferNFT(
+        tokenId,
+        to,
+        amount,
+        data, {gasLimit: gasLimit}
+      );
+      await tx.wait();
+      console.log("tx", tx);
     }
   };
 
