@@ -91,7 +91,7 @@ export default function Page({ params }: { params: { slug: string } }) {
       }
       const fetchUrl = "https://ipfs.io/ipfs/" + vault_ipfsHash;
       const response = await fetch(fetchUrl);
-     
+
       if (!response.ok) {
         throw new Error("Failed to fetch image from IPFS");
       }
@@ -105,7 +105,6 @@ export default function Page({ params }: { params: { slug: string } }) {
       setVaultCid(_vaultCid);
 
       const result = await VaultContract.tokenIdsOf(vaultAddress);
-   
 
       // NFT info
       if (result.length > 0) {
@@ -116,7 +115,7 @@ export default function Page({ params }: { params: { slug: string } }) {
             signer
           );
           const balance = await lsp7Contract.balanceOf(owner);
-        
+
           if (hexToDecimal(balance._hex) == 0) continue;
           const tokenIdMetadata = await VaultContract.getDataForTokenId(
             result[i],
@@ -130,12 +129,10 @@ export default function Page({ params }: { params: { slug: string } }) {
             },
           ]);
           const ipfsHash = decodedMetadata[0].value.url;
-          console.log("decodedMetadata", decodedMetadata);
-          console.log("ipfsHash", ipfsHash);
 
+          if (ipfsHash == "") continue;
           const fetchUrl = "https://ipfs.io/ipfs/" + ipfsHash;
           const response = await fetch(fetchUrl);
-          console.log("response", response);
           if (!response.ok) {
             throw new Error("Failed to fetch image from IPFS");
           }
