@@ -4,7 +4,10 @@ import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import ForeverMemoryCollection from "@/artifacts/ForeverMemoryCollection.json";
 import { ethers } from "ethers";
-import { useConnectWallet } from "@web3-onboard/react";
+import {
+  useWeb3ModalAccount,
+  useWeb3ModalProvider,
+} from "@web3modal/ethers5/react";
 import { bytes32ToAddress, hexToDecimal } from "@/utils/format"; // Adjust the import path as necessary
 import { ERC725 } from "@erc725/erc725.js";
 import lsp4Schema from "@erc725/erc725.js/schemas/LSP4DigitalAsset.json";
@@ -38,25 +41,25 @@ export default function Page({ params }: { params: { slug: string } }) {
   const [vaultName, setVaultName] = useState<string>();
   const [vaultCid, setVaultCid] = useState<string>();
   const [vaultSymbol, setVaultSymbol] = useState<string>();
-  const [{ wallet }] = useConnectWallet();
+  const { address, isConnected } = useWeb3ModalAccount();
+  const { walletProvider } = useWeb3ModalProvider();
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
 
   useEffect(() => {
     fetchNFT();
-  }, [wallet]);
+  }, [isConnected]);
 
   const fetchNFT = async () => {
-    if (wallet) {
+    if (walletProvider) {
       const encryptionKey = await generateEncryptionKey(
         process.env.NEXT_PUBLIC_ENCRYPTION_KEY!
       );
 
       const ethersProvider = new ethers.providers.Web3Provider(
-        wallet.provider,
+        walletProvider,
         "any"
       );
-      const owner = wallet.accounts[0].address;
-      const signer = ethersProvider.getSigner(owner);
+      const signer = ethersProvider.getSigner(address);
 
       const VaultContract = new ethers.Contract(
         vaultAddress,
@@ -114,7 +117,7 @@ export default function Page({ params }: { params: { slug: string } }) {
             ForeverMemoryCollection.abi,
             signer
           );
-          const balance = await lsp7Contract.balanceOf(owner);
+          const balance = await lsp7Contract.balanceOf(address);
 
           if (hexToDecimal(balance._hex) == 0) continue;
           const tokenIdMetadata = await VaultContract.getDataForTokenId(
