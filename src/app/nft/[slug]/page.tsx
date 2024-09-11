@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { FaHeart } from "react-icons/fa6";
 import { BsChatLeftTextFill, BsFillShareFill } from "react-icons/bs";
-import ForeverMemoryCollection from "@/artifacts/ForeverMemoryCollection.json";
+import ForeverMemoryCollection from "@/artifacts/Vault.json";
 import FMT from "@/artifacts/FMT.json";
 import {
   useWeb3ModalAccount,

@@ -6,7 +6,7 @@ import { generateEncryptionKey, decryptFile } from "@/utils/upload";
 import { ethers } from "ethers";
 import { ERC725 } from "@erc725/erc725.js";
 import LSP4DigitalAsset from "@erc725/erc725.js/schemas/LSP4DigitalAsset.json";
-import ForeverMemoryCollection from "@/artifacts/ForeverMemoryCollection.json";
+import ForeverMemoryCollection from "@/artifacts/Vault.json";
 import {
   useWeb3ModalAccount,
   useWeb3ModalProvider,
