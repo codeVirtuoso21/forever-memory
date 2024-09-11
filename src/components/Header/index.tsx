@@ -6,10 +6,13 @@ import { FaBars, FaTimes } from "react-icons/fa";
 import { useWeb3ModalAccount } from "@web3modal/ethers5/react";
 import { walletConnectInstance } from "@/components/WalletContext";
 import "./index.css";
+const menuStyle =
+  "nav-links px-4 cursor-pointer capitalize font-medium hover:scale-105 hover:text-blue-400 duration-200 link-underline";
 
 const Navbar = () => {
   const [nav, setNav] = useState(false);
   const { address, isConnected } = useWeb3ModalAccount();
+  const [selectedIndex, setSeletedIndex] = useState<number>(0);
   const handleConnect = async () => {
     await walletConnectInstance.open();
   };
@@ -19,21 +22,25 @@ const Navbar = () => {
     localStorage.removeItem("connectedAddress");
   };
 
+  const handleSelectIndex = (id: number) => {
+    setSeletedIndex(id);
+  };
+
   const links = [
     {
       id: 1,
-      title: "Home",
-      link: "/",
+      title: "Feed",
+      link: "/feed",
     },
     {
       id: 2,
-      title: "Memory vaults",
-      link: "/memoryVaults",
+      title: "Explore",
+      link: "/explore",
     },
     {
       id: 3,
-      title: "Feed",
-      link: "/feed",
+      title: "Vaults",
+      link: "/myVaults",
     },
     {
       id: 4,
@@ -42,21 +49,16 @@ const Navbar = () => {
     },
     {
       id: 5,
-      title: "Add memory",
-      link: "/addMemory",
-    },
-    {
-      id: 6,
-      title: "My Profile",
-      link: "/myProfile",
+      title: "Profile",
+      link: "/profile",
     },
   ];
 
   return (
-    <div className="flex justify-between items-center w-full h-20 px-4 text-white bg-black nav">
+    <div className="flex justify-between items-center w-full h-20 px-4 text-white nav">
       <div>
-        <h1 className="text-3xl font-signature ml-2">
-          <Link href={"/"}>Forever Memories</Link>
+        <h1 className="text-3xl font-signature ml-2 text-black font-bold">
+          <Link href={"/"}>Moments</Link>
         </h1>
       </div>
 
@@ -64,11 +66,19 @@ const Navbar = () => {
         {links.map(({ id, link, title }) => (
           <li
             key={id}
-            className="nav-links px-4 cursor-pointer capitalize font-medium text-gray-500 hover:scale-105 hover:text-white duration-200 link-underline"
+            onClick={() => handleSelectIndex(id)}
+            className={
+              selectedIndex == id
+                ? menuStyle + " text-blue-400"
+                : menuStyle + " text-gray-500"
+            }
           >
             <Link href={link}>{title}</Link>
           </li>
         ))}
+        <li className="nav-links px-4 cursor-pointer capitalize font-medium hover:scale-105 text-blue-400 duration-200 link-underline hover:text-red-500" onClick={() => handleSelectIndex(0)}>
+          <Link href={"/addMoment"}>{"Mint Moment"}</Link>
+        </li>
       </ul>
 
       <div

@@ -7,7 +7,7 @@ const projectId = "a1bda241f0519c5d662bd07e0705acaf";
 const walletConnectMetadata = {
   name: "Ferever Memory",
   description: "dApp using Wallet Connect",
-  url: "https://my.dapp.domain",
+  url: "https://forever-memory.vercel.app/",
   icons: ["https://my.dapp.domain/icon.svg"],
 };
 
