@@ -1,5 +1,6 @@
 "use client";
 
+import Image from 'next/image'
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { getUniversalProfileCustomName, convertIpfsUriToUrl } from "@/utils/format";
@@ -44,10 +45,10 @@ const VaultCard: React.FC<VaultCardProps> = ({ vault, href }) => {
   return (
     <Link className="w-full" href={`/` + href + `/vault/` + vault.vaultAddress}>
       <div className="w-full h-auto">
-        <img
+        <Image
           className="rounded-lg"
           src={"https://ipfs.io/ipfs/" + vault.cid}
-          onError={(e) => (e.currentTarget.src = "/fallback-image.jpg")} // Fallback image
+          onError={(e) => (e.currentTarget.src = "/fallback-image.jpg")}
           alt={vault.name}
         />
       </div>

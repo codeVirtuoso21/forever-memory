@@ -1,5 +1,6 @@
 "use client";
 
+import Image from 'next/image'
 import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import { getUniversalProfileCustomName, convertIpfsUriToUrl } from "@/utils/format";
@@ -42,7 +43,7 @@ const MomentCard: React.FC<MomentCardProps> = ({ moment }) => {
   return (
     <Link className="w-full h-[300px]" href={`/nft/` + moment.momentAddress}>
       <div className="w-full">
-        <img className="w-full rounded-lg" src={"https://ipfs.io/ipfs/" + moment.cid} />
+        <Image className="w-full rounded-lg" src={"https://ipfs.io/ipfs/" + moment.cid} alt="Moment Image" />
       </div>
       <div className="flex gap-2 text-xs pt-2">
         <div>Likes: {moment.likes}</div>
